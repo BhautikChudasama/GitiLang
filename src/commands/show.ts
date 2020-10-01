@@ -10,16 +10,16 @@ export default class Show extends Command {
   static description = 'Show you have used top 10 languages in Github Account :D'
 
   static examples = [
-    `$> gitilang show [UserName]
+    `export GITHUB_TOKEN=YOUR_TOKEN
+$> gitilang show [UserName]
 $> gitilang show BhautikChudasama`,
   ]
 
   static flags = {
     help: flags.help({char: 'h'}),
-    env: flags.string({char: 'e', description: 'ENV file to read private repositories.'}),
   }
 
-  octokit = new Octokit({auth: "6b079a306ffc8e110b42340030a8ac02581ee38f"});
+  octokit:any = null;
   static args = [{name: 'username'}] // $> gitilang show USERNAME 
 
   showGraphURL = (data:any) => {
@@ -96,12 +96,24 @@ $> gitilang show BhautikChudasama`,
           this.showGraphURL(sortedLangs);
       }
       return;
+    }).catch(err => {
+      this.log(chalk.red('(!) ') + chalk.blue("Error ocurred!!"));
+      this.log(chalk.red('ERROR: ') + chalk.blue(err));
+      this.log(chalk.red('ERROR REASONS: '));
+      this.log(chalk.blue("1. May be you have choosed wrong prompt!!"));
+      this.log(chalk.blue("2. Token is invalid!!"));
+      this.log(chalk.blue("3. You are offline!!"));
     });
   }
 
   run = async() => {
+    if(process.env.GITHUB_TOKEN === undefined || process.env.GITHUB_TOKEN.length <= 0) {
+      this.log(chalk.red("Please set GITHUB_TOKEN environment variable!"));
+      return;
+    }
+    this.octokit= new Octokit({auth: process.env.GITHUB_TOKEN});
     const {args, flags} = this.parse(Show);
-    if(args.username && !flags.env) {
+    if(args.username) {
       try {
         let prompt = new Select({
           name: "UserType",
@@ -110,18 +122,21 @@ $> gitilang show BhautikChudasama`,
         });
         const promptResult = await prompt.run();
         let progressFetchingRepos = ora("Fetching Repositories...").start();
-        progressFetchingRepos.stopAndPersist({prefixText: "✅", text: "Repositories Fetched!"});
         switch(promptResult) {
           case "org":
             const orgResponse = await this.octokit.request('GET /orgs/{org}/repos', {
-              org: args.username
+              org: args.username,
+              type: "public"
             });
+            progressFetchingRepos.stopAndPersist({prefixText: "✅", text: "Repositories Fetched!"});
             this.showLangBytes(args.username, orgResponse);
             return;
           case "user":
             const userResponse:any = await this.octokit.request('GET /users/{user}/repos', {
-              user: args.username
+              user: args.username,
+              type: "public"
             });
+            progressFetchingRepos.stopAndPersist({prefixText: "✅", text: "Repositories Fetched!"});
             this.showLangBytes(args.username, userResponse);
             return;
             break;
@@ -136,10 +151,8 @@ $> gitilang show BhautikChudasama`,
         this.log(chalk.blue("1. May be you have choosed wrong prompt!!"));
         this.log(chalk.blue("2. Token is invalid!!"));
         this.log(chalk.blue("3. You are offline!!"));
+        return;
       }
-    }
-    else if(args.username && (flags.env !== undefined) && (flags.env.length > 0)) {
-      // Read private repository using Auth token
     }
     else {
       this.log(chalk.red('(!) ') + chalk.blue("Please enter GitHub Username"))
