@@ -5,14 +5,6 @@ resources: # Resource define external input and output to concourse
     source:
       uri: https://github.com/BhautikChudasama/GitiLang.git
       branch: master
-  - name: gitilang-image
-    type: registry-image
-    icon: docker
-    source: 
-      repository: bhautikchudasama/gitilang
-      username: ((DOCKER_USERNAME)) # That are all environment variables that pass during creation of pipeline
-      password: ((DOCKER_PASSWORD))
-
 
 jobs:
   - name: build-and-publish
@@ -37,33 +29,13 @@ jobs:
               - |
                 echo "Node Version: $(node --version)"
                 echo "NPM Version: $(npm --version)"
-                cd GitiLang
+                cd gitilang-repo
                 npm install
                 npm install --global typescript@latest
                 tsc
-                - echo _auth=((NPM_TOKEN)) >> .npmrc
-                - echo email=((NPM_EMAIL)) >> .npmrc
-                - npm publish
-                - cp . /published-repo
+                echo "//registry.npmjs.org/:_authToken=((NPM_TOKEN))" >> .npmrc
+                npm publish
         
-      - task: publish-image-to-docker
-        config:
-          platform: linux # We are using Linux OS
-          image_resource:
-            type: registry-image
-            source: { repository: node, tag: "10" }
-          inputs:
-            - name: published-repo
-          outputs:
-            - name: image
-          run:
-            path: build # docker build
-          params:
-            CONTEXT: gitilang/Dockerfile # Where Dockerfile is located
-
-      - put: gitilang-image
-        params:
-          image: image/image.tar    
-
+      
 
                 
