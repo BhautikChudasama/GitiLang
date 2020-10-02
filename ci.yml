@@ -1,0 +1,87 @@
+resources: # Resource define external input and output to concourse
+  - name: gitilang-repo
+    type: git
+    icon: github
+    source:
+      uri: https://github.com/BhautikChudasama/GitiLang.git
+      branch: master
+  - name: gitilang-image
+    type: registry-image
+    icon: docker
+    source: 
+      repository: bhautikchudasama/gitilang
+      username: ((DOCKER_USERNAME)) # That are all environment variables that pass during creation of pipeline
+      password: ((DOCKER_PASSWORD))
+
+
+jobs:
+  - name: build-and-publish
+    public: true
+    plan:
+      - get: gitilang-repo
+        trigger: true # Whenever any changes in master branch that performs below tasks.
+      - task: build # Build our repository
+        config:
+          platform: linux # We are using Linux OS
+          image_resource:
+            type: registry-image
+            source: { repository: node, tag: "10" } # We picked NodeJS 10 version as base image
+          inputs:
+            - name: gitilang-repo # Pass input as our repository 
+          outputs:
+            - name: builded-repo # Our Builded repository
+          run: # Launch BASH
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                echo "Node Version: $(node --version)"
+                echo "NPM Version: $(npm --version)"
+                cd GitiLang
+                npm install
+                npm install --global typescript@latest
+                tsc
+                cp . ~/builded-repo
+
+      - task: publish-package-to-npm
+        config:
+          platform: linux # We are using Linux OS
+          image_resource:
+            type: registry-image
+            source: { repository: node, tag: "10" } # We picked NodeJS 10 version as base image
+          inputs: 
+            - name: builded-repo
+          outputs:
+            - name: published-repo
+          run: 
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                cd builded-repo
+              - echo _auth=((NPM_TOKEN)) >> .npmrc
+              - echo email=((NPM_EMAIL)) >> .npmrc
+              - npm publish
+              - cp . ~/published-repo
+        
+      - task: publish-image-to-docker
+        config:
+          platform: linux # We are using Linux OS
+          image_resource:
+            type: registry-image
+            source: { repository: node, tag: "10" }
+          inputs:
+            - name: published-repo
+          outputs:
+            - name: image
+          run:
+            path: build # docker build
+          params:
+            CONTEXT: gitilang/Dockerfile # Where Dockerfile is located
+
+      - put: gitilang-image
+        params:
+          image: image/image.tar    
+
+
+                

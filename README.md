@@ -1,63 +1,119 @@
-gitilang
-========
+# GitiLang
+Welcome to Gitilang Find 🔟 languages that you mostly use ❤️
 
 
-<!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
-<!-- tocstop -->
-# Usage
-<!-- usage -->
-```sh-session
-$ npm install -g gitilang
-$ gitilang COMMAND
-running command...
-$ gitilang (-v|--version|version)
-gitilang/1.0.0 linux-x64 node-v10.19.0
-$ gitilang --help [COMMAND]
+## Installation
+
+- You must have installed ```NodeJS``` in your machine.
+
+- You have a ```GitHub Account``` 
+
+  ### **STEPS**
+  1. Here's are steps to get GitHub Token.
+    -  Visit https://github.com/settings/profile
+    - Visit inside ```Developers Settings > Personal access tokens```.
+    - Click on ```Generate new token```.
+    - Inside Select scope select all ```repo scope```.
+    - Now you copy your token.
+    
+  2. Open your terminal
+    - Export your copied token as
+      ```bash
+      $> export GITHUB_TOKEN=YOUR_COPIED_TOKEN
+      ```
+    - Install ```gitilang``` package
+      ```bash
+      $> npm install -g gitilang
+      ```
+    - Verify gitilang is installed
+      ```bash
+      $> gitilang
+      ```
+  
+
+## Usage
+- Note: Gitilang only show ```public repo statistics```.
+- Consider you want to see ```Google``` used top 10 languages.
+- Open ```terminal```
+```bash
+# Verify gitilang is globally installed!
+$> gitilang
+VERSION
+  gitilang/1.0.0 linux-x64 node-v10.14.2 # May vary version.
+
 USAGE
-  $ gitilang COMMAND
-...
-```
-<!-- usagestop -->
-# Commands
-<!-- commands -->
-* [`gitilang help [COMMAND]`](#gitilang-help-command)
-* [`gitilang show [USERNAME]`](#gitilang-show-username)
+  $ gitilang [COMMAND]
 
-## `gitilang help [COMMAND]`
+COMMANDS
+  help  display help for gitilang
+  show  Show you have used top 10 languages in Github Account :D
 
-display help for gitilang
+# Show all commands
+$> gitilang help
 
-```
-USAGE
-  $ gitilang help [COMMAND]
-
-ARGUMENTS
-  COMMAND  command to show help for
-
-OPTIONS
-  --all  see all commands in CLI
-```
-
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
-
-## `gitilang show [USERNAME]`
-
+# Particular command help
+$> gitilang show -h
 Show you have used top 10 languages in Github Account :D
 
-```
 USAGE
   $ gitilang show [USERNAME]
 
 OPTIONS
-  -e, --env=env  ENV file to read private repositories.
-  -h, --help     show CLI help
+  -h, --help  show CLI help
 
 EXAMPLE
+  export GITHUB_TOKEN=YOUR_TOKEN
   $> gitilang show [UserName]
   $> gitilang show BhautikChudasama
+
+# We want to see Google used top 10 languages
+$> gitilang show google
+# Remember Google is organization so select org
+? Given Username is Organization or User? …
+▸ org
+  user
+✅ Repositories Fetched!
+✅ Repositories languages analyzed!
+# Do you want to export fetched languages data, This case no
+? Do you want to export fetched data? …
+   yes
+▸  no
+# Now you see Google have used top 10 languages bytes.
+✔ Do you want to export fetched data? · no
+┌─────────┬──────────────┬──────────┐
+│ (index) │      0       │    1     │
+├─────────┼──────────────┼──────────┤
+│    0    │ 'JavaScript' │ 14099827 │
+│    1    │    'C++'     │ 13078046 │
+│    2    │    'Java'    │ 7022866  │
+│    3    │    'TeX'     │ 6184970  │
+│    4    │    'HTML'    │ 1742227  │
+│    5    │   'Python'   │  530826  │
+│    6    │    'CSS'     │  487097  │
+│    7    │     'C'      │  285801  │
+│    8    │  'Starlark'  │  246761  │
+│    9    │   'Kotlin'   │  121027  │
+└─────────┴──────────────┴──────────┘
+
+# Column 0 repesents language name
+# Column 1 repesents language bytes
 ```
 
-_See code: [src/commands/show.ts](https://github.com/BhautikChudasama/gitlang/blob/v1.0.0/src/commands/show.ts)_
-<!-- commandsstop -->
+## Docker Usage
+You can also use ```docker``` to used our CLI.
+
+```bash
+# Pull docker image
+$> docker pull bhautikchudasama/gitilang
+
+# Run
+$> docker run -i -e GITHUB_TOKEN=YOUR_COPIED_TOKEN bhautikchudasama/gitilang google
+
+# -i => Interactive to retain CLI
+# -e => Pass your GITHUB_TOKEN to container
+# google => We want to see google has used top 10 languages in their public Github repositories. 
+
+```
+
+## Contributors
+- BhautikChudasama (@bhautiktweets).
