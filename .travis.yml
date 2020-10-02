@@ -20,8 +20,8 @@ install:
   - tsc
 
 script:
-  - echo _auth="$NPM_TOKEN" >> .npmrc
-  - echo email="$NPM_EMAIL" >> .npmrc
+  - echo echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}"
+  - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
   - npm publish
   - echo "Published to NPM"
 
