@@ -25,11 +25,11 @@ jobs:
           platform: linux # We are using Linux OS
           image_resource:
             type: registry-image
-            source: { repository: node, tag: "10" } # We picked NodeJS 10 version as base image
+            source: { repository: node } # We picked NodeJS 10 version as base image
           inputs:
             - name: gitilang-repo # Pass input as our repository 
           outputs:
-            - name: builded-repo # Our Builded repository
+            - name: image # Our Builded repository
           run: # Launch BASH
             path: /bin/sh
             args:
@@ -41,28 +41,10 @@ jobs:
                 npm install
                 npm install --global typescript@latest
                 tsc
-                cp . ~/builded-repo
-
-      - task: publish-package-to-npm
-        config:
-          platform: linux # We are using Linux OS
-          image_resource:
-            type: registry-image
-            source: { repository: node, tag: "10" } # We picked NodeJS 10 version as base image
-          inputs: 
-            - name: builded-repo
-          outputs:
-            - name: published-repo
-          run: 
-            path: /bin/sh
-            args:
-              - -c
-              - |
-                cd builded-repo
-              - echo _auth=((NPM_TOKEN)) >> .npmrc
-              - echo email=((NPM_EMAIL)) >> .npmrc
-              - npm publish
-              - cp . ~/published-repo
+                - echo _auth=((NPM_TOKEN)) >> .npmrc
+                - echo email=((NPM_EMAIL)) >> .npmrc
+                - npm publish
+                - cp . /published-repo
         
       - task: publish-image-to-docker
         config:

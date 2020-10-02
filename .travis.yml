@@ -1,0 +1,36 @@
+language: node_js
+node_js:
+  - "10.9"
+
+services:
+  - docker
+
+cache:
+  npm: false
+
+branches:
+  only:
+    - "master"
+
+before_script:
+  - npm install --global typescript@latest
+
+install:
+  - npm install
+  - tsc
+
+script:
+  - echo _auth=$NPM_TOKEN >> .npmrc
+  - echo email=$_NPM_EMAIL >> .npmrc
+  - npm publish
+  - echo "Published to NPM"
+
+after_success:
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+  - docker build -t bhautikchudasama/gitilang .
+  - docker push bhautikchudasama/gitilang
+
+notifications:
+  email:
+    on_failure: change
+    on_success: change
