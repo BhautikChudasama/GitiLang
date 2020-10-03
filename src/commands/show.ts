@@ -44,6 +44,7 @@ $> gitilang show BhautikChudasama`,
     help: flags.help({ char: "h" }),
   };
 
+  progressFetchingRepos: any = null;
   octokit: any = null;
   static args = [{ name: "username" }]; // $> gitilang show USERNAME
 
@@ -176,7 +177,7 @@ $> gitilang show BhautikChudasama`,
           choices: ["org", "user"],
         });
         const promptResult = await prompt.run();
-        let progressFetchingRepos = ora("Fetching Repositories...").start(); // Show loading...
+        this.progressFetchingRepos = ora("Fetching Repositories...").start(); // Show loading...
         switch (promptResult) {
           case "org":
             // fetching org repos
@@ -187,7 +188,7 @@ $> gitilang show BhautikChudasama`,
                 type: "public",
               }
             );
-            progressFetchingRepos.stopAndPersist({
+            this.progressFetchingRepos.stopAndPersist({
               prefixText: "✅",
               text: "Repositories Fetched!",
             });
@@ -202,7 +203,7 @@ $> gitilang show BhautikChudasama`,
                 type: "public",
               }
             );
-            progressFetchingRepos.stopAndPersist({
+            this.progressFetchingRepos.stopAndPersist({
               prefixText: "✅",
               text: "Repositories Fetched!",
             });
@@ -219,6 +220,10 @@ $> gitilang show BhautikChudasama`,
         this.log(chalk.blue("1. May be you have choosed wrong prompt!!"));
         this.log(chalk.blue("2. Token is invalid!!"));
         this.log(chalk.blue("3. You are offline!!"));
+        this.progressFetchingRepos.stopAndPersist({
+          prefixText: "❌",
+          text: "Error Occurred!!",
+        });
         return;
       }
     } else {
