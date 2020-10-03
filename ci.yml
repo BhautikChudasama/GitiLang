@@ -5,9 +5,17 @@ resources: # Resource define external input and output to concourse
     source:
       uri: https://github.com/BhautikChudasama/GitiLang.git
       branch: master
+  - name: docker-image
+    type: docker-image
+    icon: docker
+    privileged: true
+    source:
+      repository: bhautikchudasama/gitilang
+      username: ((DOCKER_USERNAME))
+      password: ((DOCKER_PASSWORD))
 
 jobs:
-  - name: build-and-publish
+  - name: build-and-publish-to-npm
     public: true
     plan:
       - get: gitilang-repo
@@ -21,21 +29,27 @@ jobs:
           inputs:
             - name: gitilang-repo # Pass input as our repository 
           outputs:
-            - name: image # Our Builded repository
+            - name: builded-repo # Our Builded repository
           run: # Launch BASH
             path: /bin/sh
             args:
               - -c
               - |
+                output_dir=builded_repo
                 echo "Node Version: $(node --version)"
                 echo "NPM Version: $(npm --version)"
                 cd gitilang-repo
                 npm install
                 npm install --global typescript@latest
-                tsc
+                npm run prepack
                 echo "//registry.npmjs.org/:_authToken=((NPM_TOKEN))" >> .npmrc
                 npm publish
-        
-      
-
-                
+  - name: deploy-to-container-registry
+    public: true
+    privileged: true
+    plan:
+      - get: gitilang-repo
+        trigger: true
+      - put: docker-image
+        params: 
+          build: gitilang-repo/
