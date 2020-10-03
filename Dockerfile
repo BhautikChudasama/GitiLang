@@ -9,7 +9,7 @@ RUN npm ci --only=production
 
 RUN npm install --global typescript@latest
 
-RUN npm run prepack
+RUN tsc -b
 
 ENTRYPOINT [ "./bin/run" ]
 

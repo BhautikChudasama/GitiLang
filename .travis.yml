@@ -17,9 +17,9 @@ before_script:
 
 install:
   - npm install
-  - tsc
 
 script:
+  - npm run prepack
   - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
   - npm publish
   - echo "Published to NPM"
