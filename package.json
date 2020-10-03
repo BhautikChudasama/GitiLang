@@ -1,6 +1,6 @@
 {
   "name": "gitilang",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "author": "Bhautik",
   "bin": {
     "gitilang": "./bin/run"
@@ -43,7 +43,11 @@
   ],
   "homepage": "https://github.com/BhautikChudasama/gitlang",
   "keywords": [
-    "oclif"
+    "GitHub",
+    "Git",
+    "GitiLang",
+    "FindLang",
+    "Repository"
   ],
   "license": "Apache-2.0",
   "main": "lib/index.js",
